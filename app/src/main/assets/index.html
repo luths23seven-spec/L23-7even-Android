@@ -1,1 +1,134 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L23 7even</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f7f2;color:#183b28}
+header{background:#168447;color:white;padding:20px;text-align:center}
+nav{display:flex;flex-wrap:wrap;background:#fff;padding:8px;gap:6px;position:sticky;top:0}
+nav button{border:0;background:#e0f2e5;padding:10px;border-radius:8px;color:#145b32}
+nav button.active{background:#168447;color:white}
+main{padding:14px;max-width:850px;margin:auto}
+section{display:none;background:white;padding:16px;border-radius:12px;margin-bottom:12px}
+section.active{display:block}
+input,select{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #b8cbbb;border-radius:7px}
+button.action{background:#168447;color:white;border:0;padding:11px 16px;border-radius:8px;margin:4px}
+.stat{background:#e4f5e8;padding:14px;border-radius:9px;margin:8px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:8px;border-bottom:1px solid #ddd;text-align:left}
+.small{font-size:13px;color:#55715e}
+</style>
+</head>
+<body>
+<header>
+<h1>L23 7even</h1>
+<p>Stoa buk bilong yu | Kina (K)</p>
+</header>
+<nav>
+<button class="active" onclick="show('home',this)">Haus</button>
+<button onclick="show('pos',this)">Salim</button>
+<button onclick="show('purchase',this)">Baim Stok</button>
+<button onclick="show('stock',this)">Stok</button>
+<button onclick="show('expenses',this)"> खर्च</button>
+<button onclick="show('debts',this)">Dinau</button>
+<button onclick="show('reports',this)">Ripots</button>
+</nav>
+<main>
+<section id="home" class="active">
+<h2>Haus</h2>
+<div class="stat">Total salens: <b id="homeSales">K0.00</b></div>
+<div class="stat">Profit: <b id="homeProfit">K0.00</b></div>
+<div class="stat">Ol prodak: <b id="homeStock">0</b></div>
+<p class="small">Ol data i save long fon bilong yu. No deletem browser data.</p>
+</section>
+
+<section id="pos">
+<h2>Salim Prodak</h2>
+<label>Prodak</label><select id="saleProduct"></select>
+<label>Namba yu salim</label><input id="saleQty" type="number" min="1" value="1">
+<button class="action" onclick="sell()">Rekodim Salens</button>
+<div id="saleMessage"></div>
+</section>
+
+<section id="purchase">
+<h2>Baim Nupela Stok</h2>
+<label>Nem bilong prodak</label><input id="pName">
+<label>Hamas yu baim (quantity)</label><input id="pQty" type="number" min="1">
+<label>Cost Price bilong wanwan</label><input id="pCost" type="number" min="0" step=".01">
+<label>Sale Price bilong wanwan</label><input id="pSale" type="number" min="0" step=".01">
+<button class="action" onclick="purchase()">Save Baim Stok</button>
+</section>
+
+<section id="stock">
+<h2>Stok bilong Stoa</h2>
+<table><thead><tr><th>Prodak</th><th>Stok</th><th>Cost</th><th>Sale</th></tr></thead><tbody id="stockRows"></tbody></table>
+</section>
+
+<section id="expenses">
+<h2>Ol Spes</h2>
+<label>Wanem spes?</label><input id="eName">
+<label>Hamas Kina?</label><input id="eAmount" type="number" min="0" step=".01">
+<button class="action" onclick="addExpense()">Save Spes</button>
+<div id="expenseRows"></div>
+</section>
+
+<section id="debts">
+<h2>Ol Dinau</h2>
+<label>Nem bilong man</label><input id="dName">
+<label>Hamas Kina?</label><input id="dAmount" type="number" min="0" step=".01">
+<button class="action" onclick="addDebt()">Save Dinau</button>
+<div id="debtRows"></div>
+</section>
+
+<section id="reports">
+<h2>Ripots</h2>
+<div class="stat">Total salens: <b id="rSales">K0.00</b></div>
+<div class="stat">Cost bilong ol salens: <b id="rCost">K0.00</b></div>
+<div class="stat">Gross profit: <b id="rGross">K0.00</b></div>
+<div class="stat">Ol spes: <b id="rExpenses">K0.00</b></div>
+<div class="stat">Net profit: <b id="rNet">K0.00</b></div>
+<button class="action" onclick="backup()">Kisim Backup</button>
+<button class="action" onclick="document.getElementById('restoreFile').click()">Restore Backup</button>
+<input id="restoreFile" type="file" accept=".json" hidden onchange="restore(event)">
+</section>
+</main>
+<script>
+let data=JSON.parse(localStorage.getItem('l23data')||'{"products":[],"sales":[],"expenses":[],"debts":[]}');
+function save(){localStorage.setItem('l23data',JSON.stringify(data));render()}
+function money(n){return 'K'+Number(n||0).toFixed(2)}
+function show(id,btn){document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render()}
+function purchase(){
+let name=document.getElementById('pName').value.trim(),q=Number(document.getElementById('pQty').value),c=Number(document.getElementById('pCost').value),s=Number(document.getElementById('pSale').value);
+if(!name||q<=0||c<0||s<0)return alert('Plis pulimap ol space gut.');
+let p=data.products.find(x=>x.name.toLowerCase()===name.toLowerCase());
+if(p){p.cost=(p.cost*p.qty+c*q)/(p.qty+q);p.qty+=q;p.sale=s}
+else data.products.push({name,qty:q,cost:c,sale:s});
+['pName','pQty','pCost','pSale'].forEach(id=>document.getElementById(id).value='');save();alert('Stok i save pinis.')
+}
+function sell(){
+let i=Number(document.getElementById('saleProduct').value),q=Number(document.getElementById('saleQty').value),p=data.products[i];
+if(!p||q<=0||q>p.qty)return alert('Nogat inap stok.');
+data.sales.push({name:p.name,qty:q,sale:p.sale,cost:p.cost,total:q*p.sale,profit:q*(p.sale-p.cost),date:new Date().toISOString()});p.qty-=q;save();alert('Salens i save pinis.')
+}
+function addExpense(){let n=eName.value.trim(),a=Number(eAmount.value);if(!n||a<=0)return alert('Putim stretpela infomesen.');data.expenses.push({name:n,amount:a});eName.value='';eAmount.value='';save()}
+function addDebt(){let n=dName.value.trim(),a=Number(dAmount.value);if(!n||a<=0)return alert('Putim stretpela infomesen.');data.debts.push({name:n,amount:a});dName.value='';dAmount.value='';save()}
+function render(){
+saleProduct.innerHTML=data.products.map((p,i)=>`<option value="${i}">${p.name} - ${money(p.sale)} (stok ${p.qty})</option>`).join('');
+stockRows.innerHTML=data.products.map(p=>`<tr><td>${p.name}</td><td>${p.qty}</td><td>${money(p.cost)}</td><td>${money(p.sale)}</td></tr>`).join('');
+let sales=data.sales.reduce((a,x)=>a+x.total,0),cost=data.sales.reduce((a,x)=>a+x.cost*x.qty,0),gross=sales-cost,expenses=data.expenses.reduce((a,x)=>a+x.amount,0);
+homeSales.textContent=money(sales);homeProfit.textContent=money(gross-expenses);homeStock.textContent=data.products.length;
+rSales.textContent=money(sales);rCost.textContent=money(cost);rGross.textContent=money(gross);rExpenses.textContent=money(expenses);rNet.textContent=money(gross-expenses);
+expenseRows.innerHTML=data.expenses.map(x=>`<p>${x.name}: ${money(x.amount)}</p>`).join('');
+debtRows.innerHTML=data.debts.map(x=>`<p>${x.name}: ${money(x.amount)}</p>`).join('');
+}
+function backup(){let a=document.createElement('a'),b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});a.href=URL.createObjectURL(b);a.download='L23-7even-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d.products||!d.sales||!d.expenses||!d.debts)throw 0;data=d;save();alert('Backup i kam bek pinis.')}catch(err){alert('Backup file i no stret.')}};r.readAsText(f)}
+render();
+</script>
+</body>
+</html>
+
