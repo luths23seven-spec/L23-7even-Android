@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#087b35">
+<title>L23 7even</title>
+<style>
+:root{--g:#087b35;--g2:#0b9b45;--pale:#e9f8ee;--ink:#17251b;--muted:#66736a;--line:#dce8df;--bg:#f5faf6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#05652c,#0b9843);color:white;padding:18px 16px 15px;position:sticky;top:0;z-index:5;box-shadow:0 2px 10px #003b1825}
+header h1{margin:0;font-size:24px;letter-spacing:.2px}header p{margin:3px 0 0;color:#d9f6e2;font-size:12px}
+main{max-width:980px;margin:auto;padding:14px 14px 90px}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0 auto 14px;max-width:980px}
+.tab{border:1px solid var(--line);background:white;border-radius:12px;padding:10px 4px;font-weight:650;color:#34513d;font-size:12px}
+.tab.active{background:var(--g);color:white;border-color:var(--g)}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:14px;margin:0 0 12px;box-shadow:0 2px 8px #12351a08}
+h2{font-size:19px;margin:0 0 12px}h3{font-size:14px;margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{background:var(--pale);border-radius:12px;padding:12px}.stat small{display:block;color:var(--muted)}.stat b{font-size:20px;color:var(--g)}
+label{display:block;font-size:12px;font-weight:650;color:#405548;margin:9px 0 4px}
+input,select,textarea{width:100%;border:1px solid #cddbd0;border-radius:10px;padding:11px;font:inherit;background:white;color:var(--ink);min-width:0}
+button{border:0;border-radius:10px;padding:11px 13px;background:var(--g);color:white;font:650 14px system-ui;cursor:pointer}
+button.secondary{background:#eaf5ed;color:#155b2e;border:1px solid #d2e8d8}button.danger{background:#fff0ed;color:#a33220;border:1px solid #f3d2cb}
+button:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #edf2ee}.row:last-child{border:0}
+.row small{display:block;color:var(--muted);margin-top:2px}.price{font-weight:750;text-align:right;white-space:nowrap}
+.pill{font-size:11px;border-radius:99px;padding:3px 8px;background:#e8f7ed;color:#12642f}.low{background:#fff1dc;color:#9a5b00}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:9px 6px;border-bottom:1px solid #edf2ee}th{color:var(--muted);font-weight:650}td:last-child,th:last-child{text-align:right}
+.muted{color:var(--muted);font-size:12px}.hidden{display:none!important}.empty{color:var(--muted);text-align:center;padding:22px 8px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+@media(min-width:700px){.tabs{grid-template-columns:repeat(7,1fr)}.grid.four{grid-template-columns:repeat(4,1fr)}}
+</style></head>
+<body>
+<header><h1>📈 L23 7even</h1><p>Bookkeeping bilong bisnis • Tok Pisin • PNG Kina • Offline</p></header>
+<main>
+<nav class="tabs" id="tabs">
+<button class="tab active" data-page="home">🏠 Home</button><button class="tab" data-page="pos">🛒 POS</button>
+<button class="tab" data-page="purchase">📦 Purchase</button><button class="tab" data-page="stock">📋 Stock</button>
+<button class="tab" data-page="expenses">💸 Expenses</button><button class="tab" data-page="debts">🤝 Debts</button>
+<button class="tab" data-page="reports">📊 Reports</button>
+</nav>
+<section id="home" class="page">
+<div class="card"><h2>Gutpela de! 👋</h2><div class="muted">Lukim wok bilong store bilong yu long wanpela hap.</div></div>
+<div class="grid four">
+<div class="stat"><small>Total Sales</small><b id="homeSales">K0.00</b></div><div class="stat"><small>Purchase</small><b id="homePurchase">K0.00</b></div>
+<div class="stat"><small>Expenses</small><b id="homeExpenses">K0.00</b></div><div class="stat"><small>Profit</small><b id="homeProfit">K0.00</b></div>
+</div>
+<div class="card"><h3>Quick action</h3><div class="actions"><button onclick="showPage('pos')">Mekim Sales</button><button onclick="showPage('purchase')">Add Purchase</button><button class="secondary" onclick="showPage('stock')">Add Product</button></div></div>
+<div class="card"><h3>Ol product i sot liklik</h3><div id="lowHome"></div></div>
+<div class="card"><h3>Data bilong yu</h3><p class="muted">Data i save long dispela browser long dispela phone. Exportim backup olgeta taim bilong seifim data.</p><div class="actions"><button class="secondary" onclick="exportData()">Download Backup</button><button class="secondary" onclick="document.getElementById('importFile').click()">Restore Backup</button><input id="importFile" class="hidden" type="file" accept="application/json" onchange="importData(event)"></div></div>
+</section>
+<section id="pos" class="page hidden">
+<div class="card"><h2>POS – Sel long pei</h2><label>Product</label><select id="posProduct"></select><div class="grid"><div><label>Hamas</label><input id="posQty" type="number" min="1" value="1"></div><div><label>Sale Price (K)</label><input id="posPrice" type="number" min="0" step=".01"></div></div><div class="actions"><button onclick="addCart()">Putim long Cart</button></div></div>
+<div class="card"><h3>Cart</h3><div id="cartList"></div><div class="row"><b>Total</b><b class="price" id="cartTotal">K0.00</b></div><label>Customer (optional)</label><input id="saleCustomer" placeholder="Customer nem"><label>Payment</label><select id="salePayment"><option value="paid">Cash / Paid</option><option value="debt">Debt / Kisim long dinau</option></select><div class="actions"><button onclick="finishSale()">Save Sale</button><button class="secondary" onclick="clearCart()">Clear</button></div></div>
+</section>
+<section id="purchase" class="page hidden">
+<div class="card"><h2>Purchase – Buyim stock</h2><label>Product</label><select id="buyProduct"></select><div class="grid"><div><label>Quantity</label><input id="buyQty" type="number" min="1" value="1"></div><div><label>Cost Price per unit (K)</label><input id="buyCost" type="number" min="0" step=".01"></div></div><label>Supplier (optional)</label><input id="supplier" placeholder="Supplier nem"><div class="actions"><button onclick="savePurchase()">Save Purchase & Update Stock</button></div><p class="muted">Purchase bai apdetim stock na average cost price bilong product.</p></div>
+<div class="card"><h3>Purchase history</h3><div id="purchaseHistory"></div></div>
+</section>
+<section id="stock" class="page hidden">
+<div class="card"><h2>Stock – Product</h2><div class="grid"><div><label>Product nem</label><input id="prodName" placeholder="e.g. Rice 5kg"></div><div><label>Category</label><input id="prodCat" placeholder="Food / Drinks"></div><div><label>Cost Price (K)</label><input id="prodCost" type="number" min="0" step=".01" placeholder="0.00"></div><div><label>Sale Price (K)</label><input id="prodSale" type="number" min="0" step=".01" placeholder="0.00"></div><div><label>Opening stock</label><input id="prodQty" type="number" min="0" step="1" value="0"></div><div><label>Low stock alert at</label><input id="prodLow" type="number" min="0" step="1" value="5"></div></div><div class="actions"><button onclick="saveProduct()">Save Product</button></div></div>
+<div class="card"><h3>All product</h3><div id="stockList"></div></div>
+</section>
+<section id="expenses" class="page hidden">
+<div class="card"><h2>Expenses – Kost</h2><label>Expense</label><input id="expName" placeholder="Transport, rent, power..."><label>Amount (K)</label><input id="expAmount" type="number" min="0" step=".01"><label>Note (optional)</label><input id="expNote" placeholder="Toksave"><div class="actions"><button onclick="saveExpense()">Save Expense</button></div></div><div class="card"><h3>Expense history</h3><div id="expenseList"></div></div>
+</section>
+<section id="debts" class="page hidden">
+<div class="card"><h2>Debts – Olgeta dinau</h2><label>Customer / Supplier nem</label><input id="debtName" placeholder="Nem"><label>Type</label><select id="debtType"><option value="owed">Customer i owe mi</option><option value="owing">Mi owe supplier</option></select><label>Amount (K)</label><input id="debtAmount" type="number" min="0" step=".01"><label>Note</label><input id="debtNote" placeholder="Due date / toksave"><div class="actions"><button onclick="saveDebt()">Add Debt</button></div></div><div class="card"><h3>Debt list</h3><div id="debtList"></div></div>
+</section>
+<section id="reports" class="page hidden">
+<div class="card"><h2>Reports – Profit & Loss</h2><div class="grid"><div class="stat"><small>Total Sales</small><b id="rSales">K0.00</b></div><div class="stat"><small>Cost of Goods Sold</small><b id="rCogs">K0.00</b></div><div class="stat"><small>Gross Profit</small><b id="rGross">K0.00</b></div><div class="stat"><small>Expenses</small><b id="rExp">K0.00</b></div></div><div class="row"><b>Net Profit</b><b class="price" id="rNet">K0.00</b></div><p class="muted">Profit = Sale Price minus Cost Price; Net Profit = Gross Profit minus Expenses. Purchase cost is counted as stock/COGS only when product is sold.</p></div>
+<div class="card"><h3>Sales history</h3><div id="salesHistory"></div></div>
+</section>
+<footer>L23 7even • Data i stap long dispela device tasol. Mekim backup olgeta taim.</footer>
+</main>
+<script>
+const KEY='l23seven_v1';
+let db=load(), cart=[];
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{products:[],sales:[],purchases:[],expenses:[],debts:[]}}catch(e){return {products:[],sales:[],purchases:[],expenses:[],debts:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function money(n){return 'K'+Number(n||0).toFixed(2)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('hidden',x.id!==p));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.page===p));render()}
+document.getElementById('tabs').addEventListener('click',e=>{let b=e.target.closest('[data-page]');if(b)showPage(b.dataset.page)});
+function options(sel){let old=sel.value;sel.innerHTML='<option value="">Makim product</option>'+db.products.map(p=>`<option value="${p.id}">${esc(p.name)} (Stock: ${p.qty})</option>`).join('');if(db.products.some(p=>p.id===old))sel.value=old}
+function saveProduct(){let name=prodName.value.trim(),cost=+prodCost.value,sale=+prodSale.value,qty=+prodQty.value,low=+prodLow.value;if(!name||prodCost.value===''||prodSale.value===''||qty<0||cost<0||sale<0)return alert('Plis putim product nem, cost price, sale price na stock.');db.products.push({id:id(),name,cat:prodCat.value,cost,sale,qty,low});['prodName','prodCat','prodCost','prodSale'].forEach(x=>document.getElementById(x).value='');prodQty.value=0;prodLow.value=5;save()}
+function addCart(){let p=db.products.find(x=>x.id===posProduct.value),q=+posQty.value,price=+posPrice.value;if(!p||q<1||!Number.isFinite(q)||price<0||posPrice.value==='' )return alert('Makim product na putim quantity na sale price.');if(q>p.qty)return alert('Stock i no inap. Yu gat '+p.qty+' tasol.');cart.push({productId:p.id,name:p.name,qty:q,price,cost:p.cost});posQty.value=1;renderCart()}
+function renderCart(){cartList.innerHTML=cart.length?cart.map((x,i)=>`<div class="row"><div><b>${esc(x.name)}</b><small>${x.qty} × ${money(x.price)}</small></div><div class="price">${money(x.qty*x.price)} <button class="danger" onclick="removeCart(${i})">×</button></div></div>`).join(''):'<div class="empty">Cart i empty yet.</div>';cartTotal.textContent=money(cart.reduce((s,x)=>s+x.qty*x.price,0))}
+function removeCart(i){cart.splice(i,1);renderCart()}function clearCart(){cart=[];renderCart()}
+function finishSale(){if(!cart.length)return alert('Cart i empty.');for(let x of cart){let p=db.products.find(p=>p.id===x.productId);if(!p||p.qty<x.qty)return alert('Stock i no inap moa bilong '+x.name)}let total=cart.reduce((s,x)=>s+x.qty*x.price,0),cogs=cart.reduce((s,x)=>s+x.qty*x.cost,0),customer=saleCustomer.value.trim(),payment=salePayment.value;cart.forEach(x=>{db.products.find(p=>p.id===x.productId).qty-=x.qty});db.sales.unshift({id:id(),date:new Date().toISOString(),items:cart,total,cogs,customer,payment});if(payment==='debt')db.debts.unshift({id:id(),name:customer||'Customer',type:'owed',amount:total,note:'Dinau long sales',date:new Date().toISOString()});cart=[];saleCustomer.value='';save();alert('Sales i seiv pinis!')}
+function savePurchase(){let p=db.products.find(x=>x.id===buyProduct.value),q=+buyQty.value,c=+buyCost.value;if(!p||q<1||c<0||buyCost.value==='')return alert('Makim product na putim quantity na cost price.');let old=p.qty;p.cost=old+q===0?c:(old*p.cost+q*c)/(old+q);p.qty+=q;db.purchases.unshift({id:id(),date:new Date().toISOString(),product:p.name,qty:q,cost:c,total:q*c,supplier:supplier.value});buyQty.value=1;buyCost.value='';supplier.value='';save();alert('Purchase seiv pinis. Stock na average cost price i update.')}
+function saveExpense(){let name=expName.value.trim(),amount=+expAmount.value;if(!name||amount<=0)return alert('Putim expense nem na amount.');db.expenses.unshift({id:id(),date:new Date().toISOString(),name,amount,note:expNote.value});expName.value='';expAmount.value='';expNote.value='';save()}
+function saveDebt(){let name=debtName.value.trim(),amount=+debtAmount.value;if(!name||amount<=0)return alert('Putim nem na amount.');db.debts.unshift({id:id(),date:new Date().toISOString(),name,amount,type:debtType.value,note:debtNote.value});debtName.value='';debtAmount.value='';debtNote.value='';save()}
+function payDebt(i){let d=db.debts[i],v=prompt('Hamas yu kisim bek? (K)',d.amount);if(v===null)return;let n=+v;if(n<=0||n>d.amount)return alert('Amount i no stret.');d.amount-=n;if(d.amount<.005)db.debts.splice(i,1);save()}
+function editPrice(i){let p=db.products[i],c=prompt('Nupela Cost Price (K)',p.cost);if(c===null)return;let s=prompt('Nupela Sale Price (K)',p.sale);if(s===null)return;if(+c<0||+s<0||c===''||s==='')return alert('Price i no stret.');p.cost=+c;p.sale=+s;save()}
+function deleteProduct(i){if(confirm('Tru yu laik rausim dispela product?')){db.products.splice(i,1);save()}}
+function fmtDate(d){return new Date(d).toLocaleDateString()}
+function exportData(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.href=u;a.download='L23-7even-backup.json';a.click();URL.revokeObjectURL(u)}
+function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.products||!x.sales)throw 0;if(confirm('Restore backup? Dispela bai senisim data nau.')){db=x;save();alert('Backup restore pinis.')}}catch(err){alert('Backup file i no stret.')}};r.readAsText(f);e.target.value=''}
+function render(){options(posProduct);options(buyProduct);if(posProduct.value){let p=db.products.find(x=>x.id===posProduct.value);if(p)posPrice.value=p.sale}else if(db.products[0])posPrice.value=db.products[0].sale;
+let sales=db.sales.reduce((s,x)=>s+x.total,0),cogs=db.sales.reduce((s,x)=>s+x.cogs,0),expenses=db.expenses.reduce((s,x)=>s+x.amount,0),purchases=db.purchases.reduce((s,x)=>s+x.total,0),gross=sales-cogs;
+homeSales.textContent=money(sales);homePurchase.textContent=money(purchases);homeExpenses.textContent=money(expenses);homeProfit.textContent=money(gross-expenses);
+rSales.textContent=money(sales);rCogs.textContent=money(cogs);rGross.textContent=money(gross);rExp.textContent=money(expenses);rNet.textContent=money(gross-expenses);
+stockList.innerHTML=db.products.length?db.products.map((p,i)=>`<div class="row"><div><b>${esc(p.name)}</b><small>${esc(p.cat||'No category')} • Cost ${money(p.cost)} • Sale ${money(p.sale)}</small><small>Profit/unit ${money(p.sale-p.cost)}</small></div><div class="price">${p.qty} <span class="pill ${p.qty<=p.low?'low':''}">${p.qty<=p.low?'Low':'OK'}</span><div class="actions"><button class="secondary" onclick="editPrice(${i})">Edit price</button><button class="danger" onclick="deleteProduct(${i})">×</button></div></div></div>`).join(''):'<div class="empty">No product yet. Addim product antap.</div>';
+lowHome.innerHTML=db.products.filter(p=>p.qty<=p.low).map(p=>`<div class="row"><b>${esc(p.name)}</b><span class="pill low">${p.qty} i stap</span></div>`).join('')||'<div class="muted">No low stock.</div>';
+purchaseHistory.innerHTML=db.purchases.slice(0,30).map(x=>`<div class="row"><div><b>${esc(x.product)}</b><small>${fmtDate(x.date)} • ${x.qty} × ${money(x.cost)} • ${esc(x.supplier||'')}</small></div><b>${money(x.total)}</b></div>`).join('')||'<div class="empty">No purchase yet.</div>';
+expenseList.innerHTML=db.expenses.slice(0,30).map(x=>`<div class="row"><div><b>${esc(x.name)}</b><small>${fmtDate(x.date)} ${esc(x.note||'')}</small></div><b>${money(x.amount)}</b></div>`).join('')||'<div class="empty">No expense yet.</div>';
+debtList.innerHTML=db.debts.map((x,i)=>`<div class="row"><div><b>${esc(x.name)}</b><small>${x.type==='owed'?'Customer i owe yu':'Yu owe supplier'} • ${esc(x.note||'')}</small></div><div class="price">${money(x.amount)}<div><button class="secondary" onclick="payDebt(${i})">Record payment</button></div></div></div>`).join('')||'<div class="empty">No debt.</div>';
+salesHistory.innerHTML=db.sales.slice(0,40).map(x=>`<div class="row"><div><b>${esc(x.customer||'Walk-in Customer')}</b><small>${fmtDate(x.date)} • ${x.items.map(i=>esc(i.name)+' × '+i.qty).join(', ')}</small></div><div class="price">${money(x.total)}<small>Profit ${money(x.total-x.cogs)}</small></div></div>`).join('')||'<div class="empty">No sales yet.</div>';
+renderCart()}
+renderCart();render();
+</script></body></html>
